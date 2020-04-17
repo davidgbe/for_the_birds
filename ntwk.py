@@ -147,25 +147,25 @@ class LIFNtwkG(object):
             v_r = v_r * np.ones(n)
             
         self.n = n
-        self.c_m = c_m
-        self.g_l = g_l
-        self.t_m = c_m / g_l
-        self.e_l = e_l
-        self.v_th = v_th
-        self.v_r = v_r
-        self.t_r = t_r
+        self.c_m = c_m # membrane capacitance
+        self.g_l = g_l # leakage conductance
+        self.t_m = c_m / g_l # leakage timescale
+        self.e_l = e_l # leakage reversal potential
+        self.v_th = v_th # threshold voltage
+        self.v_r = v_r # refractory voltage
+        self.t_r = t_r # refractory timescale
         
-        self.e_s = e_s
-        self.t_s = t_s
+        self.e_s = e_s # reversal potentials for synapse types
+        self.t_s = t_s # timescales for synapse types
         
         if sparse:  # sparsify connectivity if desired
             self.w_r = {k: csc_matrix(w_r_) for k, w_r_ in w_r.items()}
             self.w_u = {k: csc_matrix(w_u_) for k, w_u_ in w_u.items()} if w_u is not None else w_u
         else:
-            self.w_r = w_r
-            self.w_u = w_u
+            self.w_r = w_r # recurrent weights for within the network
+            self.w_u = w_u # weights for input external to network
 
-        self.syns = list(self.e_s.keys())
+        self.syns = list(self.e_s.keys()) # list of synapse types by name
         
     def run(self, dt, clamp, i_ext, spks_u=None):
         """
@@ -192,9 +192,9 @@ class LIFNtwkG(object):
         w_u = self.w_u
         
         # make data storage arrays
-        gs = {syn: np.nan * np.zeros((n_t, n)) for syn in syns}
-        vs = np.nan * np.zeros((n_t, n))
-        spks = np.zeros((n_t, n), dtype=bool)
+        gs = {syn: np.nan * np.zeros((n_t, n)) for syn in syns} # dynamic conductances
+        vs = np.nan * np.zeros((n_t, n)) # dynamic voltages
+        spks = np.zeros((n_t, n), dtype=bool) # spikes
         
         rp_ctr = np.zeros(n, dtype=int)
         
@@ -218,6 +218,7 @@ class LIFNtwkG(object):
                     # get weighted spike inputs
                     ## recurrent
                     inp = w_r[syn].dot(spks[t_ctr-1, :])
+
                     ## upstream
                     if spks_u is not None:
                         if syn in w_u:
