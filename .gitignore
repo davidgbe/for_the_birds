@@ -5,4 +5,5 @@
 !*.md
 !*.ipynb
 !*.py
+data/*
 
